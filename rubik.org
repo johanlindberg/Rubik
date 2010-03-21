@@ -4,7 +4,7 @@
 
 ** TODO Chapter 18-21 (Part V) of AI a Modern Approach 		       :Read:
 
-** TODO Monte Carlo Tree Search 				    :Develop:
+** TODO Supervised learning experiment 				    :Develop:
 
 A very simple outline for "learning" how to solve the 2x2x2 Rubik's cube.
 
@@ -15,7 +15,7 @@ and end state; including which pieces are affected and how).
 2. Try solving a randomized cube (10 < y < 30 moves) using the db of sequences. Keep stats on
 which sequences are used and prune the least useful ones every (1000 < z < 10000) solves.
 
-2a. Since there are no "dead-ends" in the solution space we can use a distance metric and a
+3. Since there are no "dead-ends" in the solution space we can use a distance metric and a
 simple look-ahead (1 < w < 10) algorithm coupled with a rule saying that you're not allowed
 to repeat a state/sequence pair twice to avoid loops in exploration.  
 

@@ -13,6 +13,7 @@
 		      '(L . Li) '(Li . L)
 		      '(R . Ri) '(Ri . R)))
 
+;; Public
 (defun make-cube (&key (size 2))
   "Returns an array representing a (solved) Rubik's cube of size <size>."
   (let ((result '()))
@@ -38,6 +39,7 @@
 	      (return-from solvedp))))))
     t))
 
+;; Public
 (defun scramble (cube &key (n 10))
   "Scrambles <cube> using a random sequence of length <n>."
   (do-moves cube (generate-random-sequence n)))
@@ -58,11 +60,13 @@
 
     (reverse result)))
 
+;; Public
 (defun do-moves (cube sequence)
   (if (eq sequence '())
       cube
       (do-moves (funcall (car sequence) cube) (cdr sequence))))
 
+;; Public
 (defun undo-moves (cube sequence)
   (do-moves cube (reverse (reverse-moves sequence))))
 
@@ -71,7 +75,8 @@
       '()
       (cons (cdr (assoc (car sequence) *moves*))
 	    (reverse-moves (cdr sequence)))))
-		
+	
+;; Moves	
 (defmacro define-move (name &rest transformations)
   (let ((result '()))
     (dolist (transformation transformations)
@@ -90,7 +95,6 @@
        ,@(reverse result)
        (values cube (solvedp cube)))))
 
-;; Up
 (define-move U  ((1 0 0) (5 0 0) (3 0 0) (4 0 0))
                 ((1 0 1) (5 0 1) (3 0 1) (4 0 1))
 		((0 0 0) (0 1 0) (0 1 1) (0 0 1)))
@@ -98,7 +102,6 @@
                 ((1 0 1) (4 0 1) (3 0 1) (5 0 1))
 		((0 0 0) (0 0 1) (0 1 1) (0 1 0)))
 
-;; Down
 (define-move D  ((1 1 0) (4 1 0) (3 1 0) (5 1 0))
                 ((1 1 1) (4 1 1) (3 1 1) (5 1 1))
 		((2 0 0) (2 1 0) (2 1 1) (2 0 1)))
@@ -106,7 +109,6 @@
                 ((1 1 1) (5 1 1) (3 1 1) (4 1 1))
 		((2 0 0) (2 0 1) (2 1 1) (2 1 0)))
 
-;; Front
 (define-move F  ((0 1 0) (4 1 1) (2 0 1) (5 0 0))
                 ((0 1 1) (4 0 1) (2 0 0) (5 1 0))
 		((1 0 0) (1 1 0) (1 1 1) (1 0 1)))
@@ -114,7 +116,6 @@
                 ((0 1 1) (5 1 0) (2 0 0) (4 0 1))
 		((1 0 0) (1 0 1) (1 1 1) (1 1 0)))
 
-;; Back
 (define-move B  ((0 0 0) (5 0 1) (2 1 1) (4 1 0))
                 ((0 0 1) (5 1 1) (2 1 0) (4 0 0))
 		((3 0 0) (3 1 0) (3 1 1) (3 0 1)))
@@ -122,7 +123,6 @@
                 ((0 0 1) (4 0 0) (2 1 0) (5 1 1))
 		((3 0 0) (3 0 1) (3 1 1) (3 1 0)))
 
-;; Left
 (define-move L  ((0 0 0) (3 1 1) (2 0 0) (1 0 0))
                 ((0 1 0) (3 0 1) (2 1 0) (1 1 0))
 		((4 0 0) (4 1 0) (4 1 1) (4 0 1)))
@@ -130,7 +130,6 @@
                 ((0 1 0) (1 1 0) (2 1 0) (3 0 1))
 		((4 0 0) (4 0 1) (4 1 1) (4 1 0)))
 
-;; Right
 (define-move R  ((0 0 1) (1 0 1) (2 0 1) (3 1 0))
                 ((0 1 1) (1 1 1) (2 1 1) (3 0 0))
 		((5 0 0) (5 1 0) (5 1 1) (5 0 1)))
@@ -138,7 +137,6 @@
                 ((0 1 1) (3 0 0) (2 1 1) (1 1 1))
 		((5 0 0) (5 0 1) (5 1 1) (5 1 0)))
 
-;; rotate around X-axis
 (defun X (cube)
   (L cube)
   (Ri cube))
@@ -146,7 +144,6 @@
   (Li cube)
   (R cube))
 
-;; rotate around Y-axis
 (defun Y (cube)
   (U cube)
   (Di cube))
@@ -154,7 +151,6 @@
   (Ui cube)
   (D cube))
 
-;; rotate around Z-axis
 (defun Z (cube)
   (F cube)
   (Bi cube))
@@ -162,15 +158,3 @@
   (Fi cube)
   (B cube))
 
-;; Sketch for "learning" to solve the 2x2x2 Rubik's cube.
-
-;; 1. Try (random?) move sequences of a fixed size (2 < x < 20) and store the sequence in a db
-;; Each sequence should have an "analysis" of effects coupled with it (a diagram of start
-;; and end state; including which pieces are affected and how).
-
-;; 2. Try solving a randomized cube (10 < y < 30 moves) using the db of sequences. Keep stats on
-;; which sequences are used and prune the least useful ones every (1000 < z < 10000) solves.
-
-;; 2a. Since there are no "dead-ends" in the solution space we can use a distance metric and a
-;; simple look-ahead (1 < w < 10) algorithm coupled with a rule saying that you're not allowed
-;; to repeat a state/sequence pair twice to avoid loops in exploration.  
