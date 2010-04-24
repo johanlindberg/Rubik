@@ -2,7 +2,7 @@
 
 (defpackage :rubik
   (:use :cl)
-  (:export #:make-cube #:scramble #:do-moves #:undo-moves
+  (:export #:make-cube #:scramble #:do-moves #:undo-moves #:match
 	   #:U #:Ui #:D #:Di #:F #:Fi #:B #:Bi #:L #:Li #:R #:Ri #:X #:Y #:Z))
 (in-package :rubik)
 
@@ -17,11 +17,11 @@
 (defun make-cube (&key (size 2))
   "Returns an array representing a (solved) Rubik's cube of size <size>."
   (let ((result '()))
-    (dotimes (f 6)
+    (dotimes (f 6) ; face
       (let ((rows '()))
-	(dotimes (r size)
+	(dotimes (r size) ; row
 	  (let ((row '()))
-	    (dotimes (c size)
+	    (dotimes (c size) ; column
 	      (push f row))
 	    (push row rows)))
 	(push rows result)))
@@ -31,10 +31,10 @@
 (defun solvedp (cube)
   "Returns T if <cube> is solved, otherwise NIL."
   (let ((dimensions (array-dimensions cube)))
-    (dotimes (f (car dimensions))
+    (dotimes (f (car dimensions)) ; face
       (let ((color (aref cube f 0 0)))
-	(dotimes (r (cadr dimensions))
-	  (dotimes (c (caddr dimensions))
+	(dotimes (r (cadr dimensions)) ; row
+	  (dotimes (c (caddr dimensions)) ; column
 	    (unless (eq (aref cube f r c) color)
 	      (return-from solvedp))))))
     t))
@@ -75,7 +75,22 @@
       '()
       (cons (cdr (assoc (car sequence) *moves*))
 	    (reverse-moves (cdr sequence)))))
-	
+
+;; Public	
+(defun match (cube state)
+  (assert (equal (array-dimensions cube)
+                 (array-dimensions state)))
+  (let ((dimensions (array-dimensions state)))
+    (dotimes (f (car dimensions)) ; face
+      (dotimes (r (cadr dimensions)) ; row
+        (dotimes (c (caddr dimensions)) ;column
+
+          (unless (eq (aref cube f r c)
+                      (aref state f r c))
+            (when (numberp (aref state f r c))
+              (return-from match)))))))
+  t)
+
 ;; Moves	
 (defmacro define-move (name &rest transformations)
   (let ((result '()))
